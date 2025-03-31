@@ -100,7 +100,7 @@ if(WIN32)
                 # rename the folder to pythonlib
                 file(RENAME ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO}/x64 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO}/pythonlib)
             else()
-                file(COPY ${_file} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO})
+                file(COPY ${_file} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO}/pythonlib)
             endif()
         endforeach()
 
