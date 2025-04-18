@@ -3,6 +3,7 @@
 #include <General/util/BaseUtil.hpp>
 #include <General/util/Process/Process.h>
 #include <General/util/Process/Thread.h>
+#include <General/util/User/User.h>
 #include <General/util/StrUtil.h>
 #include <chrono>
 #include <libproc.h>
@@ -25,7 +26,7 @@
 #include <boost/filesystem.hpp>
 namespace zzj
 {
-ProcessV2::ProcessV2() {}
+ProcessV2::ProcessV2() { this->pid = getpid(); }
 ProcessV2::ProcessV2(int pid) { this->pid = pid; }
 ProcessV2::ProcessV2(const std::string &name) { this->processName = name; }
 int ProcessV2::GetPid()
@@ -249,6 +250,25 @@ std::string ProcessV2::GetExecutableFilePath()
     if (result <= 0) return "";
     boost::filesystem::path path(pathBuffer);
     return path.string();
+}
+
+CommandHelper::CommandResult CommandHelper::ExecuteCurrentUserCommand(const std::string &command)
+{
+    auto userInfoVar = zzj::UserInfo::GetActiveUserInfo();
+    if (!userInfoVar.has_value()) throw std::runtime_error("Failed to get active user info.");
+    auto uid = userInfoVar->uid;
+    std::string launchasUserCommand =
+        "launchctl asuser " + uid + " sudo -u " + userInfoVar->userName + " ";
+    return ExecuteCommand(launchasUserCommand + command);
+}
+
+CommandHelper::CommandResult CommandHelper::ExecuteRootCommand(const std::string &command)
+{
+    auto userInfoVar = zzj::UserInfo::GetActiveUserInfo();
+    if (!userInfoVar.has_value()) throw std::runtime_error("Failed to get active user info.");
+    auto uid = userInfoVar->uid;
+    std::string launchasUserCommand = "launchctl asuser " + uid + " sudo -u root ";
+    return ExecuteCommand(launchasUserCommand + command);
 }
 
 }  // namespace zzj
